@@ -1,4 +1,4 @@
-package com.hanyu.weather;
+package com.hanyu.weather.activity;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -10,9 +10,12 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.hanyu.weather.R;
+
 public class MainActivity extends Activity{
     protected void onCreate(Bundle savedInstanceState){
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_layout);
+
     }
 }
