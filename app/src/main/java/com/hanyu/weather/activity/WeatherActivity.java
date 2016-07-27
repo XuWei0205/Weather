@@ -1,6 +1,8 @@
 package com.hanyu.weather.activity;
 
 import android.app.Activity;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -8,6 +10,7 @@ import android.test.UiThreadTest;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -21,7 +24,7 @@ import org.w3c.dom.Text;
 /**
  * Created by Dell on 2016/7/26.
  */
-public class WeatherActivity extends Activity {
+public class WeatherActivity extends Activity implements View.OnClickListener{
     private LinearLayout weatherInfoLayout;
 
     /*显示城市名*/
@@ -42,6 +45,9 @@ public class WeatherActivity extends Activity {
     /*显示当前时间*/
     private TextView currentDateText;
 
+    private Button switchCity;
+    private Button refreshWeather;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -56,7 +62,11 @@ public class WeatherActivity extends Activity {
         temp1text = (TextView) findViewById(R.id.temp1);
         temp2text = (TextView) findViewById(R.id.temp2);
         currentDateText = (TextView) findViewById(R.id.current_data);
+        switchCity = (Button) findViewById(R.id.switch_city);
+        refreshWeather = (Button) findViewById(R.id.refresh_weather);
 
+        switchCity.setOnClickListener(this);
+        refreshWeather.setOnClickListener(this);
 
         String countyCode = getIntent().getStringExtra("county_code");
         if (!TextUtils.isEmpty(countyCode)){
@@ -68,16 +78,33 @@ public class WeatherActivity extends Activity {
             showWeather();
         }
 
+    }
 
-
-
-
+    public void onClick(View v){
+        switch(v.getId()){
+            case R.id.switch_city:
+                Intent intent = new Intent (this, ChooseAreaActivity.class);
+                intent.putExtra("from_weather_activity", true);
+                startActivity(intent);
+                finish();
+                break;
+            case R.id.refresh_weather:
+                publishText.setText("同步");
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+                String weatherCode = prefs.getString("weather_code","");
+                if(!TextUtils.isEmpty(weatherCode)){
+                    queryWeatherInfo(weatherCode);
+                }
+                break;
+            default:
+                break;
+        }
     }
 
 
 
     private void queryWeatherCode(String countyCode){
-        String address = "http://www.weather.com.cn/data/list3/city" + countyCode + ".xml";
+        String address = "http://www.weather.com.cn/data/list3/city"+countyCode+".xml";
         queryFromServer(address,"countyCode");
 
     }
@@ -87,7 +114,7 @@ public class WeatherActivity extends Activity {
     private void queryFromServer(final String address, final String type ){
         HttpUtil.sendHttpRequest(address, new HttpCallbackListener() {
             @Override
-            public void onFinish(String response) {
+            public void onFinish( final String response) {
                 if ("countyCode".equals(type)) {
                     if (!TextUtils.isEmpty(response)) {
                         String[] array = response.split("\\|");
@@ -121,7 +148,7 @@ public class WeatherActivity extends Activity {
 
     }
     private void queryWeatherInfo(String weatherCode){
-        String address = "http://www.weather.com.cn/data/cityinfo/" + weatherCode + ".html";
+        String address = "http://www.weather.com.cn/data/cityinfo/"+weatherCode+".html";
         queryFromServer(address, "weatherCode");
     }
 
@@ -129,15 +156,16 @@ public class WeatherActivity extends Activity {
     private void showWeather(){
 
 
-        SharedPreferences preferences = this.getPreferences(0);
+       // SharedPreferences preferences = this.getPreferences(0);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
 
 
-        cityNameText.setText(preferences.getString("city_name" , ""));
-        temp1text.setText(preferences.getString("temp1" , ""));
-        temp2text.setText(preferences.getString("temp2" , ""));
-        weatherDespText.setText(preferences.getString("weather_desp" , ""));
-        publishText.setText(preferences.getString("publish_time" + "发布" , ""));
-        currentDateText.setText(preferences.getString("current_data" , ""));
+        cityNameText.setText(prefs.getString("city_name" , ""));
+        temp1text.setText(prefs.getString("temp1" , ""));
+        temp2text.setText(prefs.getString("temp2" , ""));
+        weatherDespText.setText(prefs.getString("weather_desp" , ""));
+        publishText.setText(prefs.getString("publish_time" + "发布" , ""));
+        currentDateText.setText(prefs.getString("current_date" , ""));
 
 
         weatherInfoLayout.setVisibility(View.VISIBLE);

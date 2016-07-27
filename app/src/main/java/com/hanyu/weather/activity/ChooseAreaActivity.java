@@ -32,6 +32,9 @@ import java.util.List;
  * Created by Dell on 2016/7/24.
  */
 public class ChooseAreaActivity extends Activity {
+
+    private boolean isFromWeatherActivity;
+
     public static final int LEVEL_PROVINCE = 0;
     public static final int LEVEL_CITY = 1;
     public static final int LEVEL_COUNTY = 2;
@@ -56,8 +59,9 @@ public class ChooseAreaActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        if (preferences.getBoolean("city_selected",false)){
+        isFromWeatherActivity = getIntent().getBooleanExtra("from_weather_activity",false);
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        if (prefs.getBoolean("city_selected",false) && !isFromWeatherActivity){
             Intent intent = new Intent(this,WeatherActivity.class);
             startActivity(intent);
             finish();
@@ -85,7 +89,7 @@ public class ChooseAreaActivity extends Activity {
                 }else if(currentLevel == LEVEL_COUNTY){
                     String countyCode = countyList.get(position).getCountyCode();
                     Intent intent = new Intent (ChooseAreaActivity.this,WeatherActivity.class);
-                    intent.putExtra("countyCode",countyCode);
+                    intent.putExtra("county_code",countyCode);
                     startActivity(intent);
                     finish();
                 }
@@ -229,6 +233,10 @@ public class ChooseAreaActivity extends Activity {
         }else if (currentLevel == LEVEL_CITY){
             queryProvinces();
         }else{
+            if (isFromWeatherActivity){
+                Intent intent = new Intent(this,WeatherActivity.class);
+                startActivity(intent);
+            }
             finish();
         }
     }
