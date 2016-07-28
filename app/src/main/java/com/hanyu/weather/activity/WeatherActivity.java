@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.test.UiThreadTest;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -15,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.hanyu.weather.R;
+import com.hanyu.weather.service.AutoUpdateService;
 import com.hanyu.weather.util.HttpCallbackListener;
 import com.hanyu.weather.util.HttpUtil;
 import com.hanyu.weather.util.Utility;
@@ -136,6 +138,7 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
 
             @Override
             public void onError(Exception e) {
+                Log.e("yichang2",e.toString());
                runOnUiThread(new Runnable() {
                    @Override
                    public void run() {
@@ -165,10 +168,14 @@ public class WeatherActivity extends Activity implements View.OnClickListener{
         temp2text.setText(prefs.getString("temp2" , ""));
         weatherDespText.setText(prefs.getString("weather_desp" , ""));
         publishText.setText(prefs.getString("publish_time" + "发布" , ""));
-        currentDateText.setText(prefs.getString("current_date" , ""));
+        currentDateText.setText(prefs.getString("current_date", ""));
 
 
         weatherInfoLayout.setVisibility(View.VISIBLE);
         cityNameText.setVisibility(View.VISIBLE);
+
+        Intent intent = new Intent(this, AutoUpdateService.class);
+        startService(intent);
+
     }
 }

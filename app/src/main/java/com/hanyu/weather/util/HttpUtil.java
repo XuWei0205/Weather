@@ -1,5 +1,7 @@
 package com.hanyu.weather.util;
 
+import android.util.Log;
+
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -20,12 +22,14 @@ public class HttpUtil {
 
 
                     connection = (HttpURLConnection) url.openConnection();
+                    connection.setRequestProperty("encoding","UTF-8");
                     connection.setRequestMethod("GET");
                     connection.setConnectTimeout(8000);
                     connection.setReadTimeout(8000);
 
 
                     InputStream in = connection.getInputStream();
+
                     BufferedReader reader = new BufferedReader(new InputStreamReader(in));
                     StringBuilder response = new StringBuilder();
                     String line;
@@ -39,7 +43,8 @@ public class HttpUtil {
 
 
                 }catch (Exception e){
-                    if (listener == null){
+                    Log.e("yichang",e.toString());
+                    if (listener != null){
                         listener.onError(e);
                     }
                 }finally {
